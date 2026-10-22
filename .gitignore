@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+smartai.db
+.env
+cloudflared.exe
+*.log
+.DS_Store
+ngrok*

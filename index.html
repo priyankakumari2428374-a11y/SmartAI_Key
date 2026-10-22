@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartAI Developer Console</title>
+  <meta name="description" content="SmartAI Commercial Gateway - Issue and manage API keys for AI integrations.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050710; --card: rgba(14,19,40,0.85); --border: rgba(99,120,255,0.18);
+      --accent: #6378ff; --accent2: #38bdf8; --green: #10d98f;
+      --text: #e2e8f0; --muted: #64748b; --radius: 14px;
+      --glow: 0 0 40px rgba(99,120,255,0.18);
+    }
+    body { font-family: "Inter", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    body::before, body::after { content: ""; position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.25; pointer-events: none; animation: float 8s ease-in-out infinite alternate; }
+    body::before { width: 480px; height: 480px; background: radial-gradient(circle, #6378ff, transparent); top: -100px; left: -100px; }
+    body::after  { width: 380px; height: 380px; background: radial-gradient(circle, #38bdf8, transparent); bottom: -80px; right: -80px; animation-delay: -4s; }
+    @keyframes float { from { transform: translate(0,0) scale(1); } to { transform: translate(40px,30px) scale(1.08); } }
+    .card { position: relative; background: var(--card); backdrop-filter: blur(24px); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px 32px; width: 420px; box-shadow: var(--glow), 0 24px 60px rgba(0,0,0,0.5); animation: fadeUp 0.5s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.4px; text-transform: uppercase; }
+    .field input { width: 100%; padding: 11px 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: "Inter", sans-serif; font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,120,255,0.15); }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-family: "Inter", sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #4f5fd0); color: #fff; box-shadow: 0 4px 20px rgba(99,120,255,0.35); }
+    .btn-primary:hover { box-shadow: 0 6px 28px rgba(99,120,255,0.5); }
+    .btn-green { background: linear-gradient(135deg, var(--green), #0ea87c); color: #fff; box-shadow: 0 4px 20px rgba(16,217,143,0.3); margin-bottom: 20px; }
+    .btn-green:hover { box-shadow: 0 6px 28px rgba(16,217,143,0.45); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    #status-msg { font-size: 12px; min-height: 18px; margin-top: 10px; text-align: center; transition: color 0.2s; }
+    #dashboard-box { display: none; }
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .copy-row { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; }
+    .copy-row .value { flex: 1; font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--accent2); word-break: break-all; line-height: 1.5; }
+    .copy-btn { flex-shrink: 0; background: rgba(99,120,255,0.15); border: 1px solid var(--border); border-radius: 6px; color: var(--accent); font-size: 12px; font-weight: 600; padding: 5px 10px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .copy-btn:hover { background: rgba(99,120,255,0.3); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); background: rgba(16,217,143,0.1); }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; background: rgba(16,217,143,0.12); color: var(--green); border: 1px solid rgba(16,217,143,0.25); margin-bottom: 24px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 1.6s ease infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 460px) { .card { width: 95vw; padding: 28px 20px; } }
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="auth-box" class="card">
+    <div class="logo"><div class="logo-icon">&#9889;</div><h1>SmartAI</h1></div>
+    <p class="subtitle">Sign in to your administration panel</p>
+    <div class="field"><label for="email">Email</label><input type="email" id="email" value="admin@smartai.com" autocomplete="email"></div>
+    <div class="field"><label for="password">Password</label><input type="password" id="password" value="smartai123" autocomplete="current-password"></div>
+    <button id="login-btn" class="btn btn-primary" onclick="login()">Authenticate Session</button>
+    <div id="status-msg"></div>
+  </div>
+  <!-- DASHBOARD -->
+  <div id="dashboard-box" class="card">
+    <div class="logo"><div class="logo-icon">&#9889;</div><h1>Developer Dashboard</h1></div>
+    <p class="subtitle">Active API Infrastructure</p>
+    <span class="status-badge"><span class="dot"></span> Server Online</span>
+    <div class="section-label">Base Endpoint</div>
+    <div class="copy-row">
+      <span class="value" id="base-url"></span>
+      <button class="copy-btn" id="copy-url-btn" onclick="copyText('base-url','copy-url-btn')">Copy</button>
+    </div>
+    <div class="section-label">API Key</div>
+    <div class="copy-row">
+      <span class="value" id="key-display">sk-smartai-admin-key</span>
+      <button class="copy-btn" id="copy-key-btn" onclick="copyText('key-display','copy-key-btn')">Copy</button>
+    </div>
+    <hr class="divider">
+    <button id="gen-btn" class="btn btn-green" onclick="generateKey()">&#9881; Issue New Commercial Key</button>
+    <p style="font-size:11.5px; color:var(--muted); text-align:center;">Use <code style="color:var(--accent2)">Authorization: Bearer &lt;api-key&gt;</code> in requests.</p>
+  </div>
+  <script>
+    document.getElementById('base-url').innerText = window.location.origin + '/v1';
+
+    async function login() {
+      const btn = document.getElementById('login-btn');
+      const msg = document.getElementById('status-msg');
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Authenticating…';
+      msg.textContent = '';
+      try {
+        const res = await fetch('/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        if (res.ok) {
+          msg.style.color = '#10d98f'; msg.textContent = '✓ Authenticated!';
+          setTimeout(() => {
+            document.getElementById('auth-box').style.display = 'none';
+            document.getElementById('dashboard-box').style.display = 'block';
+          }, 400);
+        } else {
+          const d = await res.json().catch(() => ({}));
+          msg.style.color = '#f87171'; msg.textContent = '✗ ' + (d.detail || 'Invalid credentials.');
+          btn.disabled = false; btn.textContent = 'Authenticate Session';
+        }
+      } catch(e) {
+        msg.style.color = '#f87171'; msg.textContent = '✗ Cannot connect to backend.';
+        btn.disabled = false; btn.textContent = 'Authenticate Session';
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && document.getElementById('auth-box').style.display !== 'none') login();
+    });
+
+    async function generateKey() {
+      const btn = document.getElementById('gen-btn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Generating…';
+      try {
+        const res  = await fetch('/v1/keys/generate', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('key-display').innerText = data.api_key;
+          const cb = document.getElementById('copy-key-btn');
+          cb.textContent = 'Copy'; cb.classList.remove('copied');
+        }
+      } catch(e) { alert('Failed to connect.'); }
+      finally {
+        btn.disabled = false;
+        btn.innerHTML = '&#9881; Issue New Commercial Key';
+      }
+    }
+
+    function copyText(vid, bid) {
+      const text = document.getElementById(vid).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const b = document.getElementById(bid);
+        b.textContent = '✓ Copied'; b.classList.add('copied');
+        setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('copied'); }, 2000);
+      }).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = text; document.body.appendChild(el);
+        el.select(); document.execCommand('copy');
+        document.body.removeChild(el);
+      });
+    }
+  </script>
+</body>
+</html>

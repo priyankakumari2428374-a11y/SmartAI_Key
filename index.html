@@ -84,7 +84,11 @@
     <p style="font-size:11.5px; color:var(--muted); text-align:center;">Use <code style="color:var(--accent2)">Authorization: Bearer &lt;api-key&gt;</code> in requests.</p>
   </div>
   <script>
-    document.getElementById('base-url').innerText = window.location.origin + '/v1';
+    const API_BASE = (window.location.protocol === 'file:' || window.location.origin === 'null')
+      ? 'https://smartai-key-wcr7.onrender.com'
+      : (window.location.origin.includes('localhost') ? window.location.origin : (window.location.origin || 'https://smartai-key-wcr7.onrender.com'));
+
+    document.getElementById('base-url').innerText = API_BASE + '/v1';
 
     async function login() {
       const btn = document.getElementById('login-btn');
@@ -95,7 +99,7 @@
       btn.innerHTML = '<span class="spinner"></span>Authenticating…';
       msg.textContent = '';
       try {
-        const res = await fetch('/v1/auth/login', {
+        const res = await fetch(API_BASE + '/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -125,7 +129,7 @@
       const btn = document.getElementById('gen-btn');
       btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Generating…';
       try {
-        const res  = await fetch('/v1/keys/generate', { method: 'POST' });
+        const res  = await fetch(API_BASE + '/v1/keys/generate', { method: 'POST' });
         const data = await res.json();
         if (res.ok) {
           document.getElementById('key-display').innerText = data.api_key;

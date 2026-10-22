@@ -24,10 +24,12 @@ app.add_middleware(
 security = HTTPBearer(auto_error=False)
 
 # 🌐 Root Web UI Endpoints
+@app.head("/")
 @app.get("/")
 async def serve_index():
     return FileResponse("index.html")
 
+@app.head("/index.html")
 @app.get("/index.html")
 async def serve_index_html():
     return FileResponse("index.html")

@@ -364,27 +364,6 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str
 
     return ""
 
-# 💬 5. AI Chat Completions (OpenAI & DeepSeek Specification)
-@app.post("/v1/chat/completions")
-async def chat_with_ai(
-    request: ChatRequest,
-    req: Request,
-    token: HTTPAuthorizationCredentials = Depends(security)
-):
-    raw_key = None
-    if token and token.credentials:
-        raw_key = token.credentials
-    else:
-        auth_header = req.headers.get("authorization", "")
-        if auth_header.startswith("Bearer "):
-            raw_key = auth_header.split("Bearer ", 1)[1].strip()
-    
-    user = authenticate_key(raw_key)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Unauthorized: Invalid SmartAI API Key. Format: Bearer sk-smartai-..."
-        )
 
 def synthesize_fallback_mcqs(full_text: str) -> str:
     # 1. Detect requested number of questions

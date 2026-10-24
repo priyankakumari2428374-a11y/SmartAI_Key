@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DeepSeek</title>
-  <meta name="description" content="DeepSeek - Into the unknown. High-performance reasoning and chat AI.">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>DeepSeek - SmartAI Platform</title>
+  <meta name="description" content="DeepSeek - Into the unknown. High-performance reasoning, chat AI, and API key gateway.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234D6BFE'><path d='M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A6.002 6.002 0 0 1 6 11a1 1 0 0 1 2 0 4 4 0 0 0 7.87 1 1 1 0 0 1 1.95.44A5.98 5.98 0 0 1 13 16.93z'/></svg>">
   
   <!-- Modern Fonts -->
@@ -97,8 +100,49 @@
       fill: var(--ds-blue);
     }
 
+    /* Navigation Mode Switcher in Sidebar */
+    .mode-nav {
+      padding: 0 14px 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-tab-btn {
+      padding: 9px 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .nav-tab-btn.active {
+      background: var(--ds-blue-light);
+      border-color: rgba(77, 107, 254, 0.35);
+      color: var(--ds-blue);
+      font-weight: 600;
+    }
+
+    .nav-tab-btn svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
     .new-chat-btn {
-      margin: 0 14px 12px 14px;
+      margin: 4px 14px 12px 14px;
       padding: 10px 14px;
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -303,7 +347,21 @@
       color: var(--text-muted);
     }
 
-    /* ─── CHAT AREA ─── */
+    /* ─── VIEW CONTAINERS (Chat vs Platform) ─── */
+    .view-panel {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .view-panel.active {
+      display: flex;
+    }
+
+    /* ─── CHAT VIEW ─── */
     .chat-scroll-area {
       flex: 1;
       overflow-y: auto;
@@ -329,7 +387,7 @@
       gap: 28px;
     }
 
-    /* ─── WELCOME SCREEN (Empty State) ─── */
+    /* Welcome Screen (Empty State) */
     .welcome-screen {
       display: flex;
       flex-direction: column;
@@ -407,7 +465,7 @@
       line-height: 1.4;
     }
 
-    /* ─── MESSAGES ─── */
+    /* Message Rows */
     .message-row {
       display: flex;
       gap: 16px;
@@ -461,7 +519,7 @@
       min-width: 0;
     }
 
-    /* ─── DEEPSEEK THINKING BLOCK (R1 Reasoning) ─── */
+    /* DeepSeek Thinking Block */
     .thought-container {
       background: rgba(32, 34, 39, 0.7);
       border: 1px solid var(--border-subtle);
@@ -521,7 +579,7 @@
       display: none;
     }
 
-    /* Markdown Styling in Responses */
+    /* Markdown in Responses */
     .message-bubble h1, .message-bubble h2, .message-bubble h3 {
       margin: 16px 0 8px 0;
       color: #fff;
@@ -607,7 +665,7 @@
       background: var(--bg-card);
     }
 
-    /* ─── BOTTOM INPUT DOCK (Iconic DeepSeek Pill Box) ─── */
+    /* Bottom Input Dock */
     .input-dock {
       position: absolute;
       bottom: 0;
@@ -735,6 +793,156 @@
       text-align: center;
     }
 
+    /* ─── PLATFORM API KEYS VIEW (platform.deepseek.com style) ─── */
+    .platform-view {
+      padding: 30px 40px;
+      overflow-y: auto;
+    }
+
+    .platform-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .platform-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 18px;
+    }
+
+    .platform-title-group h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      margin-bottom: 4px;
+    }
+
+    .platform-title-group p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .create-key-btn {
+      background: var(--ds-blue);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(77, 107, 254, 0.35);
+    }
+
+    .create-key-btn:hover {
+      background: var(--ds-blue-hover);
+      transform: translateY(-1px);
+    }
+
+    .api-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .api-card-header {
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .keys-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+
+    .keys-table th {
+      padding: 12px 20px;
+      color: var(--text-muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(0,0,0,0.15);
+    }
+
+    .keys-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text-secondary);
+    }
+
+    .key-badge {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      background: #18191c;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      color: #60a5fa;
+      user-select: all;
+    }
+
+    .action-icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .action-icon-btn:hover {
+      background: var(--bg-card-hover);
+      color: #fff;
+    }
+
+    .quickstart-box {
+      background: #141518;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+
+    .quickstart-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quickstart-code {
+      background: #1d1f24;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      overflow-x: auto;
+      position: relative;
+    }
+
     /* ─── SETTINGS MODAL ─── */
     .modal-backdrop {
       position: fixed;
@@ -846,6 +1054,9 @@
       .input-dock {
         padding: 10px 12px 14px 12px;
       }
+      .platform-view {
+        padding: 16px;
+      }
     }
   </style>
 </head>
@@ -865,6 +1076,19 @@
       </button>
     </div>
 
+    <!-- Mode Nav Tabs (Chat vs API Keys Platform) -->
+    <div class="mode-nav">
+      <button class="nav-tab-btn active" id="tabChatBtn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+        <span>DeepSeek Chat</span>
+      </button>
+      <button class="nav-tab-btn" id="tabKeysBtn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        <span>API Keys (Platform)</span>
+      </button>
+    </div>
+
+    <!-- New Chat Button (only for chat mode) -->
     <button class="new-chat-btn" id="newChatBtn">
       <span>New chat</span>
       <span class="plus-icon">+</span>
@@ -878,7 +1102,7 @@
     <div class="sidebar-footer">
       <div class="profile-pill" id="profilePill">
         <div class="avatar-icon">D</div>
-        <span>Developer</span>
+        <span>SmartAI Developer</span>
       </div>
       <button class="settings-btn" id="openSettingsBtn" title="Settings">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -889,7 +1113,7 @@
     </div>
   </aside>
 
-  <!-- ─── MAIN CHAT AREA ─── -->
+  <!-- ─── MAIN CONTENT ─── -->
   <main class="main-container">
     <div class="top-bar">
       <button class="toggle-sidebar-btn" id="openSidebarBtn" title="Open sidebar">
@@ -906,109 +1130,193 @@
       <div style="width: 28px;"></div>
     </div>
 
-    <!-- Scrollable Messages -->
-    <div class="chat-scroll-area" id="chatScrollArea">
-      <div class="chat-inner" id="chatInner">
-        
-        <!-- Welcome Screen (Visible when chat is empty) -->
-        <div class="welcome-screen" id="welcomeScreen">
-          <div class="welcome-icon">
-            <svg class="whale-svg" style="width: 38px; height: 38px;" viewBox="0 0 24 24">
-              <path d="M21.5 12.8c-.8-1.5-2.2-2.3-4-2.5-.2-.7-.6-1.5-1.2-2.1-1.3-1.3-3.1-1.7-4.8-1.2-.5.1-1 .4-1.5.7C9 8.2 8 8.8 7 9.5c-.8.6-1.8 1.1-2.8 1.3-1.1.2-2 .8-2.6 1.7-.6.9-.7 2.1-.2 3.1.5 1 1.5 1.7 2.6 1.8 1.7.2 3.4-.3 4.9-1.2 1.3-.8 2.8-1.2 4.3-1.2 1.6 0 3.2.5 4.5 1.5.5.4 1.1.6 1.7.6.9 0 1.7-.5 2.1-1.2.6-1 .5-2.2-.2-3.1zM5 13.5c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z"/>
-            </svg>
-          </div>
-          <h1 class="welcome-title">Hi, I'm DeepSeek.</h1>
-          <p class="welcome-subtitle">How can I help you today?</p>
+    <!-- ─── PANEL 1: CHAT VIEW ─── -->
+    <div class="view-panel active" id="chatPanel">
+      <div class="chat-scroll-area" id="chatScrollArea">
+        <div class="chat-inner" id="chatInner">
+          
+          <!-- Welcome Screen (Visible when chat is empty) -->
+          <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-icon">
+              <svg class="whale-svg" style="width: 38px; height: 38px;" viewBox="0 0 24 24">
+                <path d="M21.5 12.8c-.8-1.5-2.2-2.3-4-2.5-.2-.7-.6-1.5-1.2-2.1-1.3-1.3-3.1-1.7-4.8-1.2-.5.1-1 .4-1.5.7C9 8.2 8 8.8 7 9.5c-.8.6-1.8 1.1-2.8 1.3-1.1.2-2 .8-2.6 1.7-.6.9-.7 2.1-.2 3.1.5 1 1.5 1.7 2.6 1.8 1.7.2 3.4-.3 4.9-1.2 1.3-.8 2.8-1.2 4.3-1.2 1.6 0 3.2.5 4.5 1.5.5.4 1.1.6 1.7.6.9 0 1.7-.5 2.1-1.2.6-1 .5-2.2-.2-3.1zM5 13.5c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z"/>
+              </svg>
+            </div>
+            <h1 class="welcome-title">Hi, I'm DeepSeek.</h1>
+            <p class="welcome-subtitle">How can I help you today?</p>
 
-          <div class="prompt-grid">
-            <div class="prompt-card" data-prompt="Write a complete Python FastAPI backend with JWT authentication and SQLite.">
-              <div class="prompt-card-icon">💻</div>
-              <div class="prompt-card-title">Code Assistance</div>
-              <div class="prompt-card-desc">Write a complete Python FastAPI script with JWT auth</div>
+            <div class="prompt-grid">
+              <div class="prompt-card" data-prompt="Write a complete Python FastAPI backend with JWT authentication and SQLite.">
+                <div class="prompt-card-icon">💻</div>
+                <div class="prompt-card-title">Code Assistance</div>
+                <div class="prompt-card-desc">Write a complete Python FastAPI script with JWT auth</div>
+              </div>
+              <div class="prompt-card" data-prompt="Explain how transformers and attention mechanisms work in simple intuitive terms.">
+                <div class="prompt-card-icon">🧠</div>
+                <div class="prompt-card-title">Deep Think & Reasoning</div>
+                <div class="prompt-card-desc">Explain how transformer attention mechanism works</div>
+              </div>
+              <div class="prompt-card" data-prompt="Generate 5 challenging exam MCQs on Indian Polity with 10-line comprehensive solutions.">
+                <div class="prompt-card-icon">📝</div>
+                <div class="prompt-card-title">Exam & MCQ Generator</div>
+                <div class="prompt-card-desc">Create high-yield exam MCQs with 10-line explanations</div>
+              </div>
+              <div class="prompt-card" data-prompt="Compare quantum computing vs classical computing: key architectural differences.">
+                <div class="prompt-card-icon">⚡</div>
+                <div class="prompt-card-title">Technical Analysis</div>
+                <div class="prompt-card-desc">Quantum vs Classical computing architecture comparison</div>
+              </div>
             </div>
-            <div class="prompt-card" data-prompt="Explain how transformers and attention mechanisms work in simple intuitive terms.">
-              <div class="prompt-card-icon">🧠</div>
-              <div class="prompt-card-title">Deep Think & Reasoning</div>
-              <div class="prompt-card-desc">Explain how transformer attention mechanism works</div>
+          </div>
+
+          <!-- Chat messages container -->
+          <div id="messagesContainer" style="display: flex; flex-direction: column; gap: 24px;"></div>
+        </div>
+      </div>
+
+      <!-- Bottom Input Dock -->
+      <div class="input-dock">
+        <div class="input-container">
+          <textarea 
+            class="chat-textarea" 
+            id="chatInput" 
+            placeholder="Message DeepSeek..." 
+            rows="1"
+          ></textarea>
+          
+          <div class="input-toolbar">
+            <div class="toolbar-left">
+              <!-- DeepThink Toggle -->
+              <button class="toggle-chip" id="deepThinkToggle" title="Enable DeepSeek-R1 reasoning engine">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 01-2 2h-4a2 2 0 01-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 017-7z"/>
+                  <path d="M9 21h6"/>
+                </svg>
+                <span>DeepThink (R1)</span>
+              </button>
+
+              <!-- Search Toggle -->
+              <button class="toggle-chip" id="searchToggle" title="Search the web for up-to-date data">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                </svg>
+                <span>Search</span>
+              </button>
             </div>
-            <div class="prompt-card" data-prompt="Generate 5 challenging exam MCQs on Indian Polity with 10-line comprehensive solutions.">
-              <div class="prompt-card-icon">📝</div>
-              <div class="prompt-card-title">Exam & MCQ Generator</div>
-              <div class="prompt-card-desc">Create high-yield exam MCQs with 10-line explanations</div>
-            </div>
-            <div class="prompt-card" data-prompt="Compare quantum computing vs classical computing: key architectural differences.">
-              <div class="prompt-card-icon">⚡</div>
-              <div class="prompt-card-title">Technical Analysis</div>
-              <div class="prompt-card-desc">Quantum vs Classical computing architecture comparison</div>
-            </div>
+
+            <!-- Send Button -->
+            <button class="send-btn" id="sendBtn" title="Send message">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M12 19V5M5 12l7-7 7 7"/>
+              </svg>
+            </button>
           </div>
         </div>
-
-        <!-- Chat messages container -->
-        <div id="messagesContainer" style="display: flex; flex-direction: column; gap: 24px;"></div>
+        <div class="disclaimer">AI-generated content may contain errors. Please verify critical information.</div>
       </div>
     </div>
 
-    <!-- ─── BOTTOM INPUT DOCK ─── -->
-    <div class="input-dock">
-      <div class="input-container">
-        <textarea 
-          class="chat-textarea" 
-          id="chatInput" 
-          placeholder="Message DeepSeek..." 
-          rows="1"
-        ></textarea>
-        
-        <div class="input-toolbar">
-          <div class="toolbar-left">
-            <!-- DeepThink Toggle -->
-            <button class="toggle-chip" id="deepThinkToggle" title="Enable DeepSeek-R1 reasoning engine">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 01-2 2h-4a2 2 0 01-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 017-7z"/>
-                <path d="M9 21h6"/>
-              </svg>
-              <span>DeepThink (R1)</span>
-            </button>
-
-            <!-- Search Toggle -->
-            <button class="toggle-chip" id="searchToggle" title="Search the web for up-to-date data">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-              </svg>
-              <span>Search</span>
+    <!-- ─── PANEL 2: PLATFORM API KEYS VIEW ─── -->
+    <div class="view-panel" id="keysPanel">
+      <div class="platform-view">
+        <div class="platform-container">
+          
+          <div class="platform-header">
+            <div class="platform-title-group">
+              <h1>API Keys</h1>
+              <p>Manage your SmartAI & DeepSeek API Keys. These keys authenticate requests to /v1/chat/completions.</p>
+            </div>
+            <button class="create-key-btn" id="createNewKeyBtn">
+              <span>+ Create new API key</span>
             </button>
           </div>
 
-          <!-- Send Button -->
-          <button class="send-btn" id="sendBtn" title="Send message">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path d="M12 19V5M5 12l7-7 7 7"/>
-            </svg>
-          </button>
+          <!-- Active Keys Card -->
+          <div class="api-card">
+            <div class="api-card-header">
+              <span>Your Active API Keys</span>
+              <span style="font-size: 12px; color: #10b981; font-weight: 500;">● Live Gateway Active</span>
+            </div>
+            <table class="keys-table">
+              <thead>
+                <tr>
+                  <th>NAME / OWNER</th>
+                  <th>SECRET KEY</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="keysTableBody">
+                <tr>
+                  <td>Admin User</td>
+                  <td><span class="key-badge">sk-smartai-admin-key</span></td>
+                  <td><span style="color: #10b981;">● Active</span></td>
+                  <td>
+                    <button class="action-icon-btn copy-key-btn" data-key="sk-smartai-admin-key">Copy</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Quickstart Guide (cURL & Python) -->
+          <div class="quickstart-box">
+            <div class="quickstart-title">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              <span>Quickstart Example (OpenAI / DeepSeek SDK Compatible)</span>
+            </div>
+            <div class="quickstart-code" id="quickstartCode">
+import openai
+
+client = openai.OpenAI(
+    base_url="https://smartai-key-wcr7.onrender.com/v1",
+    api_key="sk-smartai-admin-key"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[{"role": "user", "content": "Explain machine learning in one sentence."}]
+)
+
+print(response.choices[0].message.content)
+            </div>
+          </div>
+
+          <!-- Endpoint Specs -->
+          <div class="api-card" style="padding: 20px;">
+            <h3 style="font-size: 16px; margin-bottom: 12px;">Endpoint Information</h3>
+            <div style="font-size: 13.5px; line-height: 1.8; color: var(--text-secondary);">
+              <div><strong>Base URL:</strong> <code style="color: #60a5fa;">https://smartai-key-wcr7.onrender.com/v1</code></div>
+              <div><strong>Chat Completions:</strong> <code style="color: #60a5fa;">POST /v1/chat/completions</code></div>
+              <div><strong>Supported Models:</strong> <code style="color: #60a5fa;">deepseek-chat</code>, <code style="color: #60a5fa;">deepseek-reasoner</code></div>
+              <div><strong>Authentication:</strong> <code style="color: #60a5fa;">Bearer sk-smartai-...</code></div>
+            </div>
+          </div>
+
         </div>
       </div>
-      <div class="disclaimer">AI-generated content may contain errors. Please verify critical information.</div>
     </div>
+
   </main>
 
   <!-- ─── SETTINGS MODAL ─── -->
   <div class="modal-backdrop" id="settingsModal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">Settings & API Configuration</div>
+        <div class="modal-title">Settings & Upstream Engine</div>
         <button class="modal-close" id="closeSettingsModal">&times;</button>
       </div>
 
       <div class="form-group">
-        <label class="form-label">SmartAI Key / Access Token</label>
+        <label class="form-label">Active SmartAI Key</label>
         <input type="text" class="form-input" id="cfgApiKey" value="sk-smartai-admin-key">
-        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Default key is pre-configured and active.</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Default key is active on server.</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Active Model</label>
+        <label class="form-label">Active Chat Model</label>
         <select class="form-input" id="cfgModel">
           <option value="deepseek-chat">DeepSeek-V3 (Fast & Powerful)</option>
           <option value="deepseek-reasoner">DeepSeek-R1 (Deep Reasoning)</option>
@@ -1016,12 +1324,12 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Optional Upstream Key (DeepSeek / Groq)</label>
+        <label class="form-label">Custom Upstream Key (Optional)</label>
         <input type="password" class="form-input" id="cfgUpstreamKey" placeholder="sk-... or gsk_...">
         <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Leave blank to use built-in engine.</div>
       </div>
 
-      <button class="modal-btn" id="saveSettingsBtn">Save Changes</button>
+      <button class="modal-btn" id="saveSettingsBtn">Save Settings</button>
     </div>
   </div>
 
@@ -1055,11 +1363,20 @@
     const cfgApiKey = document.getElementById('cfgApiKey');
     const cfgModel = document.getElementById('cfgModel');
 
+    // Tab switcher elements
+    const tabChatBtn = document.getElementById('tabChatBtn');
+    const tabKeysBtn = document.getElementById('tabKeysBtn');
+    const chatPanel = document.getElementById('chatPanel');
+    const keysPanel = document.getElementById('keysPanel');
+    const createNewKeyBtn = document.getElementById('createNewKeyBtn');
+    const keysTableBody = document.getElementById('keysTableBody');
+
     // ─── INITIALIZATION ───
     function init() {
       renderHistoryList();
       setupEvents();
       loadSettings();
+      loadKeysTable();
     }
 
     function loadSettings() {
@@ -1086,6 +1403,43 @@
 
     // ─── EVENTS ───
     function setupEvents() {
+      // Tab switching
+      tabChatBtn.addEventListener('click', () => {
+        tabChatBtn.classList.add('active');
+        tabKeysBtn.classList.remove('active');
+        chatPanel.classList.add('active');
+        keysPanel.classList.remove('active');
+        newChatBtn.style.display = 'flex';
+      });
+
+      tabKeysBtn.addEventListener('click', () => {
+        tabKeysBtn.classList.add('active');
+        tabChatBtn.classList.remove('active');
+        keysPanel.classList.add('active');
+        chatPanel.classList.remove('active');
+        newChatBtn.style.display = 'none';
+        loadKeysTable();
+      });
+
+      // Create new key button in platform view
+      createNewKeyBtn.addEventListener('click', async () => {
+        const ownerName = prompt("Enter a label or name for this API key:", "My_Phone_App");
+        if (!ownerName) return;
+
+        try {
+          const res = await fetch(`/v1/keys/generate?username=${encodeURIComponent(ownerName)}`, { method: 'POST' });
+          if (res.ok) {
+            const data = await res.json();
+            alert(`New API Key Created!\n\nKey: ${data.api_key}\n\nSave this key to use in external apps!`);
+            loadKeysTable();
+          } else {
+            alert("Error creating key");
+          }
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      });
+
       // Input auto-height & Send button state
       chatInput.addEventListener('input', () => {
         chatInput.style.height = 'auto';
@@ -1158,6 +1512,43 @@
         updateModelUI(cfgModel.value);
         settingsModal.classList.remove('open');
       });
+    }
+
+    // ─── KEYS TABLE MANAGEMENT ───
+    async function loadKeysTable() {
+      try {
+        const res = await fetch('/v1/keys');
+        if (res.ok) {
+          const keys = await res.json();
+          keysTableBody.innerHTML = '';
+          keys.forEach(k => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><strong>${escapeHtml(k.username || 'Developer')}</strong></td>
+              <td><span class="key-badge">${escapeHtml(k.api_key)}</span></td>
+              <td><span style="color: #10b981;">● Active</span></td>
+              <td>
+                <button class="action-icon-btn copy-key-btn" data-key="${escapeHtml(k.api_key)}">Copy</button>
+              </td>
+            `;
+            keysTableBody.appendChild(tr);
+          });
+
+          // Attach copy events
+          document.querySelectorAll('.copy-key-btn').forEach(btn => {
+            btn.onclick = () => {
+              const keyVal = btn.getAttribute('data-key');
+              navigator.clipboard.writeText(keyVal).then(() => {
+                const old = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = old; }, 1500);
+              });
+            };
+          });
+        }
+      } catch (e) {
+        console.error("Failed to load keys", e);
+      }
     }
 
     // ─── CHAT HANDLING ───

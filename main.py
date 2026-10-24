@@ -28,12 +28,12 @@ security = HTTPBearer(auto_error=False)
 @app.head("/")
 @app.get("/")
 async def serve_index():
-    return FileResponse("index.html")
+    return FileResponse("index.html", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 @app.head("/index.html")
 @app.get("/index.html")
 async def serve_index_html():
-    return FileResponse("index.html")
+    return FileResponse("index.html", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 @app.get("/health")
 @app.get("/v1/health")

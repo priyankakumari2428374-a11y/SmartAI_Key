@@ -10,6 +10,7 @@ import os
 import json
 import time
 import re
+import concurrent.futures
 
 app = FastAPI(title="SmartAI Commercial Gateway & Test Engine")
 
@@ -238,51 +239,128 @@ async def list_models():
         ]
     }
 
-# 🤖 Upstream AI Execution Engine
+# 🤖 Upstream AI Execution Engine — Multi-Provider Fastest-Wins Strategy
 def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str:
     db_provider = get_setting("backend_provider", "auto")
     db_key = get_setting("backend_key", "")
     groq_secret = os.getenv("SMARTAI_SERVER_SECRET") or os.getenv("GROQ_API_KEY")
     deepseek_secret = os.getenv("DEEPSEEK_API_KEY")
+    openrouter_secret = os.getenv("OPENROUTER_API_KEY")
 
-    # 1. Official DeepSeek
+    # ── PRIORITY 1: User's own DeepSeek key (fastest, direct) ──────────────
     active_deepseek_key = db_key if (db_provider == "deepseek" or (db_key.startswith("sk-") and not db_key.startswith("sk-smartai-") and not db_key.startswith("gsk_"))) else deepseek_secret
     if active_deepseek_key:
         try:
             headers = {"Authorization": f"Bearer {active_deepseek_key.strip()}", "Content-Type": "application/json"}
             payload = {"model": "deepseek-chat", "messages": messages, "temperature": 0.3}
-            res = requests.post("https://api.deepseek.com/chat/completions", json=payload, headers=headers, timeout=25)
+            res = requests.post("https://api.deepseek.com/chat/completions", json=payload, headers=headers, timeout=20)
             if res.status_code == 200:
-                data = res.json()
-                return data["choices"][0]["message"]["content"]
+                return res.json()["choices"][0]["message"]["content"]
         except Exception:
             pass
 
-    # 2. Groq (High-Speed LPU)
+    # ── PRIORITY 2: User's own Groq key (LPU = 500 tokens/sec) ─────────────
     active_groq_key = db_key if (db_provider == "groq" or db_key.startswith("gsk_")) else groq_secret
     if active_groq_key:
         try:
             headers = {"Authorization": f"Bearer {active_groq_key.strip()}", "Content-Type": "application/json"}
             payload = {"model": "llama-3.3-70b-versatile", "messages": messages, "temperature": 0.3}
-            res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=20)
+            res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=15)
             if res.status_code == 200:
-                data = res.json()
-                return data["choices"][0]["message"]["content"]
+                return res.json()["choices"][0]["message"]["content"]
         except Exception:
             pass
 
-    # 3. Pollinations Free Reasoning AI Engine
-    try:
-        res = requests.post(
-            "https://text.pollinations.ai/openai/chat/completions",
-            json={"model": "openai-fast", "messages": messages, "temperature": 0.4},
-            timeout=18
-        )
-        if res.status_code == 200:
-            data = res.json()
-            return data["choices"][0]["message"]["content"]
-    except Exception:
-        pass
+    # ── PRIORITY 3: Race multiple FREE providers simultaneously ─────────────
+    # First one to respond wins. This gives DeepSeek-level speed for free.
+    def try_pollinations_openai(msgs):
+        try:
+            r = requests.post(
+                "https://text.pollinations.ai/openai/chat/completions",
+                json={"model": "openai-fast", "messages": msgs, "temperature": 0.4},
+                timeout=15
+            )
+            if r.status_code == 200:
+                d = r.json()
+                txt = d.get("choices", [{}])[0].get("message", {}).get("content", "")
+                if txt and len(txt) > 5:
+                    return txt
+        except Exception:
+            pass
+        return None
+
+    def try_pollinations_deepseek(msgs):
+        try:
+            r = requests.post(
+                "https://text.pollinations.ai/openai/chat/completions",
+                json={"model": "deepseek-chat", "messages": msgs, "temperature": 0.4},
+                timeout=15
+            )
+            if r.status_code == 200:
+                d = r.json()
+                txt = d.get("choices", [{}])[0].get("message", {}).get("content", "")
+                if txt and len(txt) > 5:
+                    return txt
+        except Exception:
+            pass
+        return None
+
+    def try_pollinations_mistral(msgs):
+        try:
+            r = requests.post(
+                "https://text.pollinations.ai/openai/chat/completions",
+                json={"model": "mistral", "messages": msgs, "temperature": 0.4},
+                timeout=15
+            )
+            if r.status_code == 200:
+                d = r.json()
+                txt = d.get("choices", [{}])[0].get("message", {}).get("content", "")
+                if txt and len(txt) > 5:
+                    return txt
+        except Exception:
+            pass
+        return None
+
+    def try_openrouter_free(msgs):
+        # OpenRouter provides free tier access to multiple models
+        key = openrouter_secret or "sk-or-v1-free"
+        try:
+            headers = {
+                "Authorization": f"Bearer {key}",
+                "HTTP-Referer": "https://smartai-key-wcr7.onrender.com",
+                "X-Title": "SmartAI Gateway",
+                "Content-Type": "application/json"
+            }
+            r = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers=headers,
+                json={"model": "meta-llama/llama-3.1-8b-instruct:free", "messages": msgs},
+                timeout=15
+            )
+            if r.status_code == 200:
+                d = r.json()
+                txt = d.get("choices", [{}])[0].get("message", {}).get("content", "")
+                if txt and len(txt) > 5:
+                    return txt
+        except Exception:
+            pass
+        return None
+
+    # Launch all providers in parallel, return first success
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {
+            executor.submit(try_pollinations_openai, messages): "pollinations-openai",
+            executor.submit(try_pollinations_deepseek, messages): "pollinations-deepseek",
+            executor.submit(try_pollinations_mistral, messages): "pollinations-mistral",
+            executor.submit(try_openrouter_free, messages): "openrouter-free",
+        }
+        for future in concurrent.futures.as_completed(futures, timeout=18):
+            try:
+                result = future.result()
+                if result:
+                    return result
+            except Exception:
+                continue
 
     return ""
 

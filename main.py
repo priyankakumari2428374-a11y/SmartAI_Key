@@ -501,6 +501,17 @@ async def chat_with_ai(
             last_user_msg = full_text[:60] if full_text else "Prompt"
             content_response = f"SmartAI Commercial Gateway: Prompt '{last_user_msg}' processed successfully."
 
+    # Clean potential enclosing ```json ... ``` if it wraps pure JSON for external apps
+    stripped = content_response.strip()
+    if stripped.startswith("```json") and stripped.endswith("```"):
+        inner = stripped[7:-3].strip()
+        if (inner.startswith("{") and inner.endswith("}")) or (inner.startswith("[") and inner.endswith("]")):
+            content_response = inner
+    elif stripped.startswith("```") and stripped.endswith("```"):
+        inner = stripped[3:-3].strip()
+        if (inner.startswith("{") and inner.endswith("}")) or (inner.startswith("[") and inner.endswith("]")):
+            content_response = inner
+
     chat_id = f"chatcmpl-{secrets.token_hex(12)}"
     created_ts = int(time.time())
 

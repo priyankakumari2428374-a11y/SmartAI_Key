@@ -259,17 +259,18 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str
         except Exception:
             pass
 
-    # ── PRIORITY 2: User's own Groq key (LPU = 500 tokens/sec) ─────────────
+    # ── PRIORITY 2: User's own Groq key (LPU = 500-800 tokens/sec) ─────────
     active_groq_key = db_key if (db_provider == "groq" or db_key.startswith("gsk_")) else groq_secret
     if active_groq_key:
-        try:
-            headers = {"Authorization": f"Bearer {active_groq_key.strip()}", "Content-Type": "application/json"}
-            payload = {"model": "llama-3.3-70b-versatile", "messages": messages, "temperature": 0.3}
-            res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=15)
-            if res.status_code == 200:
-                return res.json()["choices"][0]["message"]["content"]
-        except Exception:
-            pass
+        for model_name in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]:
+            try:
+                headers = {"Authorization": f"Bearer {active_groq_key.strip()}", "Content-Type": "application/json"}
+                payload = {"model": model_name, "messages": messages, "temperature": 0.3}
+                res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=8)
+                if res.status_code == 200:
+                    return res.json()["choices"][0]["message"]["content"]
+            except Exception:
+                continue
 
     # ── PRIORITY 3: Race multiple FREE providers simultaneously ─────────────
     # First one to respond wins. This gives DeepSeek-level speed for free.
@@ -346,7 +347,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str
             pass
         return None
 
-    # Launch all providers in parallel, return first success
+    # Launch all providers in parallel, return first success (max 4s wait)
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         futures = {
             executor.submit(try_pollinations_openai, messages): "pollinations-openai",
@@ -354,7 +355,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str
             executor.submit(try_pollinations_mistral, messages): "pollinations-mistral",
             executor.submit(try_openrouter_free, messages): "openrouter-free",
         }
-        for future in concurrent.futures.as_completed(futures, timeout=18):
+        for future in concurrent.futures.as_completed(futures, timeout=4):
             try:
                 result = future.result()
                 if result:

@@ -1500,16 +1500,47 @@ print(response.choices[0].message.content)
       closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('open'));
 
       // Settings Modal
-      openSettingsBtn.addEventListener('click', () => settingsModal.classList.add('open'));
+      openSettingsBtn.addEventListener('click', async () => {
+        settingsModal.classList.add('open');
+        try {
+          const res = await fetch('/v1/settings');
+          if (res.ok) {
+            const data = await res.json();
+            const keyInput = document.getElementById('cfgUpstreamKey');
+            if (data.has_custom_key && keyInput) {
+              keyInput.placeholder = `Active (${data.backend_key_status}) - enter new to change`;
+            }
+          }
+        } catch(e) {}
+      });
       closeSettingsModal.addEventListener('click', () => settingsModal.classList.remove('open'));
       settingsModal.addEventListener('click', (e) => {
         if (e.target === settingsModal) settingsModal.classList.remove('open');
       });
 
-      saveSettingsBtn.addEventListener('click', () => {
-        localStorage.setItem('ds_api_key', cfgApiKey.value.trim());
-        localStorage.setItem('ds_model', cfgModel.value);
-        updateModelUI(cfgModel.value);
+      saveSettingsBtn.addEventListener('click', async () => {
+        const apiKey = cfgApiKey.value.trim();
+        const model = cfgModel.value;
+        localStorage.setItem('ds_api_key', apiKey);
+        localStorage.setItem('ds_model', model);
+        updateModelUI(model);
+        
+        const upstreamKey = (document.getElementById('cfgUpstreamKey')?.value || '').trim();
+        if (upstreamKey) {
+          try {
+            const provider = upstreamKey.startsWith('gsk_') ? 'groq' : (upstreamKey.startsWith('sk-') ? 'deepseek' : 'auto');
+            const res = await fetch('/v1/settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ backend_provider: provider, backend_key: upstreamKey })
+            });
+            if (res.ok) {
+              alert('Success! Upstream Key saved to server. Engine is now running at maximum speed!');
+            }
+          } catch(e) {
+            console.error('Error saving backend settings:', e);
+          }
+        }
         settingsModal.classList.remove('open');
       });
     }

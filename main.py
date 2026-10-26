@@ -480,7 +480,7 @@ def synthesize_fallback_mcqs(full_text: str) -> str:
 
 # 💬 5. AI Chat Completions (OpenAI & DeepSeek Specification)
 @app.post("/v1/chat/completions")
-async def chat_with_ai(
+def chat_with_ai(
     request: ChatRequest,
     req: Request,
     token: HTTPAuthorizationCredentials = Depends(security)
@@ -575,7 +575,7 @@ async def chat_with_ai(
 
 # 🎯 6. Dedicated MCQ & Exam Generator Endpoint
 @app.post("/v1/mcq/generate")
-async def generate_mcqs(
+def generate_mcqs(
     request: MCQGenerateRequest,
     req: Request,
     token: HTTPAuthorizationCredentials = Depends(security)

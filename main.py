@@ -240,7 +240,7 @@ async def list_models():
     }
 
 # 🤖 Upstream AI Execution Engine — Multi-Provider Fastest-Wins Strategy
-def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str:
+def call_upstream_ai(messages: list, target_model: str = "deepseek-chat", response_format: dict = None, max_tokens: int = None, temperature: float = 0.3) -> str:
     db_provider = get_setting("backend_provider", "auto")
     db_key = get_setting("backend_key", "")
     groq_secret = os.getenv("SMARTAI_SERVER_SECRET") or os.getenv("GROQ_API_KEY")
@@ -252,8 +252,12 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str
     if active_deepseek_key:
         try:
             headers = {"Authorization": f"Bearer {active_deepseek_key.strip()}", "Content-Type": "application/json"}
-            payload = {"model": "deepseek-chat", "messages": messages, "temperature": 0.3}
-            res = requests.post("https://api.deepseek.com/chat/completions", json=payload, headers=headers, timeout=20)
+            payload = {"model": "deepseek-chat", "messages": messages, "temperature": temperature or 0.3}
+            if response_format:
+                payload["response_format"] = response_format
+            if max_tokens:
+                payload["max_tokens"] = min(max_tokens, 4096)
+            res = requests.post("https://api.deepseek.com/chat/completions", json=payload, headers=headers, timeout=30)
             if res.status_code == 200:
                 return res.json()["choices"][0]["message"]["content"]
         except Exception:
@@ -265,11 +269,18 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat") -> str
         for model_name in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]:
             try:
                 headers = {"Authorization": f"Bearer {active_groq_key.strip()}", "Content-Type": "application/json"}
-                payload = {"model": model_name, "messages": messages, "temperature": 0.3}
-                res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=8)
+                payload = {"model": model_name, "messages": messages, "temperature": temperature or 0.3}
+                if response_format:
+                    payload["response_format"] = response_format
+                if max_tokens:
+                    payload["max_tokens"] = min(max_tokens, 4096)
+                res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=30)
                 if res.status_code == 200:
                     return res.json()["choices"][0]["message"]["content"]
-            except Exception:
+                else:
+                    print(f"[Groq {model_name} Error {res.status_code}]: {res.text[:200]}")
+            except Exception as e:
+                print(f"[Groq {model_name} Exception]: {e}")
                 continue
 
     # ── PRIORITY 3: Race multiple FREE providers simultaneously ─────────────
@@ -489,7 +500,10 @@ async def chat_with_ai(
             detail="Unauthorized: Invalid SmartAI API Key. Format: Bearer sk-smartai-..."
         )
 
-    content_response = call_upstream_ai(request.messages, request.model)
+    rf = getattr(request, 'response_format', None)
+    mt = getattr(request, 'max_tokens', None)
+    temp = getattr(request, 'temperature', 0.3)
+    content_response = call_upstream_ai(request.messages, request.model, response_format=rf, max_tokens=mt, temperature=temp)
 
     # Fail-safe formatted response
     if not content_response:

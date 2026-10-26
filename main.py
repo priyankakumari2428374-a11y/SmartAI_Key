@@ -290,7 +290,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat", respon
             r = requests.post(
                 "https://text.pollinations.ai/openai/chat/completions",
                 json={"model": "openai-fast", "messages": msgs, "temperature": 0.4},
-                timeout=15
+                timeout=25
             )
             if r.status_code == 200:
                 d = r.json()
@@ -306,7 +306,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat", respon
             r = requests.post(
                 "https://text.pollinations.ai/openai/chat/completions",
                 json={"model": "deepseek-chat", "messages": msgs, "temperature": 0.4},
-                timeout=15
+                timeout=25
             )
             if r.status_code == 200:
                 d = r.json()
@@ -322,7 +322,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat", respon
             r = requests.post(
                 "https://text.pollinations.ai/openai/chat/completions",
                 json={"model": "mistral", "messages": msgs, "temperature": 0.4},
-                timeout=15
+                timeout=25
             )
             if r.status_code == 200:
                 d = r.json()
@@ -347,7 +347,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat", respon
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers=headers,
                 json={"model": "meta-llama/llama-3.1-8b-instruct:free", "messages": msgs},
-                timeout=15
+                timeout=25
             )
             if r.status_code == 200:
                 d = r.json()
@@ -366,7 +366,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat", respon
             executor.submit(try_pollinations_mistral, messages): "pollinations-mistral",
             executor.submit(try_openrouter_free, messages): "openrouter-free",
         }
-        for future in concurrent.futures.as_completed(futures, timeout=4):
+        for future in concurrent.futures.as_completed(futures, timeout=25):
             try:
                 result = future.result()
                 if result:

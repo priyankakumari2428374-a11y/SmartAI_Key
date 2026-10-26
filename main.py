@@ -266,7 +266,7 @@ def call_upstream_ai(messages: list, target_model: str = "deepseek-chat", respon
     # ── PRIORITY 2: User's own Groq key (LPU = 500-800 tokens/sec) ─────────
     active_groq_key = db_key if (db_provider == "groq" or db_key.startswith("gsk_")) else groq_secret
     if active_groq_key:
-        for model_name in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]:
+        for model_name in ["openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "llama-3.3-70b-versatile"]:
             try:
                 headers = {"Authorization": f"Bearer {active_groq_key.strip()}", "Content-Type": "application/json"}
                 payload = {"model": model_name, "messages": messages, "temperature": temperature or 0.3}
